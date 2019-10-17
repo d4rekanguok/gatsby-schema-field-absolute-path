@@ -17,7 +17,6 @@
     "typescript": "^3.6.4"
   },
   "peerDependencies": {
-    "fs-extra": "^8.1.0",
     "gatsby": "^2.16"
   }
 }
