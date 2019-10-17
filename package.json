@@ -1,6 +1,10 @@
 {
   "name": "gatsby-schema-field-absolute-path",
   "version": "1.0.0",
+  "keywords": [
+    "gatsby",
+    "gatsby-plugin"
+  ],
   "main": "index.js",
   "author": "Derek Nguyen <derek@penandpillow.com>",
   "license": "MIT",
