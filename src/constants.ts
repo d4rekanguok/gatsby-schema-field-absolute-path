@@ -1,0 +1,1 @@
+export const PLUGIN_NAME = 'gatsby-plugin-file-absolute-path'

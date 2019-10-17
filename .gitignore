@@ -1,0 +1,5 @@
+node_modules
+gatsby-node.js
+utils.js
+constants.js
+*.log
