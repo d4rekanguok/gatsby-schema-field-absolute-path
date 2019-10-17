@@ -58,7 +58,7 @@ export const createFieldExts: CreateFieldExts = dirs => {
 
   if (typeof dirs === 'object') {
     const processed = Object.entries(dirs).map(entry => {
-      const [name, dir] = entry
+      const [dir, name] = entry
       if (typeof name !== 'string' || typeof dir !== 'string') return null
       return { name, dir }
     }).filter(dir => !!dir)
