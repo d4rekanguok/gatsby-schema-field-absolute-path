@@ -24,7 +24,7 @@ export const createFieldExts: CreateFieldExts = dirs => {
   const fieldExts: Ext[] = []
 
   if (!dirs) {
-    throw new Error(`${PLUGIN_NAME}: No 'dirs' passed to this plugin's options.`)
+    return fieldExts
   }
 
   if (typeof dirs === 'string') {
@@ -56,7 +56,7 @@ export const createFieldExts: CreateFieldExts = dirs => {
     return fieldExts
   }
 
-  if (typeof dirs === 'object') {
+  if (typeof dirs === 'object' && dirs !== null) {
     const processed = Object.entries(dirs).map(entry => {
       const [dir, name] = entry
       if (typeof name !== 'string' || typeof dir !== 'string') return null
