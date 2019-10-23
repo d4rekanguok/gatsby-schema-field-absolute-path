@@ -74,6 +74,10 @@ exports.createSchemaCustomization = ({ actions }) => {
 }
 ```
 
+### How It Works
+
+I published a post on how this work over here: [link](https://www.byderek.com/post/a-stackoverflow-question--a-use-case-for-gatsbys-field-extension)
+
 ### Usage
 
 #### Install
