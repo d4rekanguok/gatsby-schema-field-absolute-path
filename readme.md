@@ -1,5 +1,7 @@
 # gatsby-schema-field-absolute-path
 
+![illustration](./cover.png)
+
 This plugin resolves absolute path (i.e `content/assets`) to the correct File node in your Gatsby graphql schema.
 
 For example, if you have a content structure like this
