@@ -1,1 +1,1 @@
-export const PLUGIN_NAME = 'gatsby-plugin-file-absolute-path'
+export const PLUGIN_NAME = 'gatsby-schema-field-absolute-path'
