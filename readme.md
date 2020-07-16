@@ -12,7 +12,8 @@ root
   |     |--posts
   |     |   `--hello-world.md
   |     `--assets
-  |         `--cat.jpg
+  |         |--cat.jpg
+  |         `--cat2.png
   |--src
   |--gatsby-config.js
  ...
@@ -60,7 +61,7 @@ exports.createSchemaCustomization = ({ actions }) => {
       attachment: File @fileByAbsolutePath(path: "content/attachment")
     }
 
-    ${ /* alternatively */ }    
+    ${ /* Alternatively, define path via config. See options below */ }    
     type Frontmatter @infer {
       featureImage: File @fileByDataPath
     }
@@ -72,6 +73,27 @@ exports.createSchemaCustomization = ({ actions }) => {
 
   createTypes(typeDefs)
 }
+```
+
+### Multiple Images
+
+Wait, what if you have an array of images instead?
+
+```diff
+  slug: hello-word
+- featuredImage: assets/cat.jpg
++ featuredImages: 
++   - assets/cat.jpg
++   - assets/cat2.png
+```
+
+No problems, just modify your gql slightly:
+
+```diff
+  type Frontmatter @infer {
+-   featuredImage: File @fileByAbsolutePath(path: "content/assets")
++   featuredImages: [File] @fileByAbsolutePath(path: "content/assets")
+  }
 ```
 
 ### How It Works
