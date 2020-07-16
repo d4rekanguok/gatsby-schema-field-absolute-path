@@ -38,12 +38,12 @@ const createResolve: CreateResolve = ({
     }
     basePath = options.path
   }
-  const baseDir = path.join(rootDir, basePath)
+  const baseDir = path.posix.join(rootDir, basePath)
   if (!fs.existsSync(baseDir)) {
     throw new Error(`${PLUGIN_NAME}: ${basePath} doesn't exist`)
   }
 
-  const filePaths = partialPaths.map(partialPath => path.join(baseDir, partialPath))
+  const filePaths = partialPaths.map(partialPath => path.posix.join(baseDir, partialPath))
 
   const fileNodes = await context.nodeModel.runQuery({
     type: 'File',
