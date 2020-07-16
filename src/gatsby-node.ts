@@ -19,11 +19,12 @@ const createResolve: CreateResolve = ({
   rootDir,
 }) => async (src: any, _: any, context: any, info: any) => {
   const { fieldName } = info
-  const partialPath = src[fieldName]
-    if (!partialPath) {
-      return null
-    }
+  const srcPath = src[fieldName]
+  if (!srcPath) {
+    return null
+  }
 
+  const partialPaths = Array.isArray(srcPath) ? srcPath : [ srcPath ]
   // if baseDir is not passed in, generate
   // a generic resolve function that
   // accepts options instead
@@ -41,24 +42,28 @@ const createResolve: CreateResolve = ({
     throw new Error(`${PLUGIN_NAME}: ${basePath} doesn't exist`)
   }
 
-  const filePath = path.join(baseDir, partialPath)
-  const fileNode = await context.nodeModel.runQuery({
-    firstOnly: true,
+  const filePaths = partialPaths.map(partialPath => path.join(baseDir, partialPath))
+
+  const fileNodes = await context.nodeModel.runQuery({
     type: 'File',
     query: {
       filter: {
         absolutePath: {
-          eq: filePath
+          in: filePaths
         }
       }
     }
   })
 
-  if (!fileNode) {
+  if (!fileNodes) {
     return null
   }
 
-  return fileNode
+  if (fileNodes.length === 1) {
+    return fileNodes[0]
+  }
+
+  return fileNodes
 }
 
 export const createSchemaCustomization: GatsbyNode['createSchemaCustomization'] = async (
