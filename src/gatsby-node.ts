@@ -24,7 +24,8 @@ const createResolve: CreateResolve = ({
     return null
   }
 
-  const partialPaths = Array.isArray(srcPath) ? srcPath : [ srcPath ]
+  const isArray = Array.isArray(srcPath)
+  const partialPaths: string[] = isArray ? srcPath : [ srcPath ]
   // if baseDir is not passed in, generate
   // a generic resolve function that
   // accepts options instead
@@ -59,7 +60,7 @@ const createResolve: CreateResolve = ({
     return null
   }
 
-  if (fileNodes.length === 1) {
+  if (fileNodes.length === 1 && !isArray) {
     return fileNodes[0]
   }
 
