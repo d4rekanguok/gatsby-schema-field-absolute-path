@@ -17,7 +17,7 @@ const createResolve: CreateResolve = ({
   options,
   dir,
   rootDir,
-}) => (src: any, _: any, context: any, info: any) => {
+}) => async (src: any, _: any, context: any, info: any) => {
   const { fieldName } = info
   const partialPath = src[fieldName]
     if (!partialPath) {
@@ -42,7 +42,7 @@ const createResolve: CreateResolve = ({
   }
 
   const filePath = path.join(baseDir, partialPath)
-  const fileNode = context.nodeModel.runQuery({
+  const fileNode = await context.nodeModel.runQuery({
     firstOnly: true,
     type: 'File',
     query: {
