@@ -8,16 +8,17 @@ import { createFieldExts } from './utils'
 type Resolve = (...args: any[]) => any
 type ResolveOptions = Record<'path', string>
 interface CreateResolveArgs {
-  rootDir: string;
-  dir?: string;
-  options?: ResolveOptions;
+  rootDir: string
+  dir?: string
+  options?: ResolveOptions
 }
 type CreateResolve = (args: CreateResolveArgs) => Resolve
-const createResolve: CreateResolve = ({
-  options,
-  dir,
-  rootDir,
-}) => async (src: any, _: any, context: any, info: any) => {
+const createResolve: CreateResolve = ({ options, dir, rootDir }) => async (
+  src: any,
+  _: any,
+  context: any,
+  info: any
+) => {
   const { fieldName } = info
   const srcPath = src[fieldName]
   if (!srcPath) {
@@ -25,7 +26,7 @@ const createResolve: CreateResolve = ({
   }
 
   const isArray = Array.isArray(srcPath)
-  const partialPaths: string[] = isArray ? srcPath : [ srcPath ]
+  const partialPaths: string[] = isArray ? srcPath : [srcPath]
   // if baseDir is not passed in, generate
   // a generic resolve function that
   // accepts options instead
@@ -43,17 +44,20 @@ const createResolve: CreateResolve = ({
     throw new Error(`${PLUGIN_NAME}: ${basePath} doesn't exist`)
   }
 
-  const filePaths = partialPaths.map(partialPath => path.posix.join(baseDir, partialPath))
+  const filePaths = partialPaths.map((partialPath) =>
+    path.posix.join(baseDir, partialPath)
+  )
 
+  // Entries may be in a different order here
   const fileNodes = await context.nodeModel.runQuery({
     type: 'File',
     query: {
       filter: {
         absolutePath: {
-          in: filePaths
-        }
-      }
-    }
+          in: filePaths,
+        },
+      },
+    },
   })
 
   if (!fileNodes) {
@@ -64,12 +68,20 @@ const createResolve: CreateResolve = ({
     return fileNodes[0]
   }
 
-  return fileNodes
+  // Return in original order
+  const fileNodesOrdered = filePaths.flatMap((filepath) => {
+    return fileNodes.find((node: any) => {
+      console.log(node.absolutePath, filepath)
+      return node.absolutePath === filepath
+    })
+  })
+
+  return fileNodesOrdered
 }
 
 export const createSchemaCustomization: GatsbyNode['createSchemaCustomization'] = async (
   { actions, store, reporter }: NodePluginArgs,
-  options: PluginOptions,
+  options: PluginOptions
 ) => {
   const { dirs } = options
   const rootDir = store.getState().program.directory
@@ -77,18 +89,20 @@ export const createSchemaCustomization: GatsbyNode['createSchemaCustomization'] 
   try {
     const fieldExts = createFieldExts(dirs)
 
-    fieldExts.forEach(entry => {
+    fieldExts.forEach((entry) => {
       const { dir, name } = entry
 
       if (process.env.NODE_ENV !== 'production') {
-        reporter.info(`${PLUGIN_NAME}: Field extension created! Use @${name} for ${dir}`)
+        reporter.info(
+          `${PLUGIN_NAME}: Field extension created! Use @${name} for ${dir}`
+        )
       }
 
       actions.createFieldExtension({
         name,
         extend: (options: ResolveOptions) => ({
-          resolve: createResolve({ options, dir, rootDir })
-        })
+          resolve: createResolve({ options, dir, rootDir }),
+        }),
       })
     })
 
@@ -105,11 +119,10 @@ export const createSchemaCustomization: GatsbyNode['createSchemaCustomization'] 
         args: {
           path: 'String',
         },
-        resolve: createResolve({ options, rootDir })
-      })
+        resolve: createResolve({ options, rootDir }),
+      }),
     })
-
-  } catch(err) {
+  } catch (err) {
     reporter.warn(err)
   }
 }
