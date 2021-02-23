@@ -69,9 +69,8 @@ const createResolve: CreateResolve = ({ options, dir, rootDir }) => async (
   }
 
   // Return in original order
-  const fileNodesOrdered = filePaths.flatMap((filepath) => {
+  const fileNodesOrdered = filePaths.map((filepath) => {
     return fileNodes.find((node: any) => {
-      console.log(node.absolutePath, filepath)
       return node.absolutePath === filepath
     })
   })
