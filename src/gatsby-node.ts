@@ -1,9 +1,14 @@
 import fs from 'fs'
 import path from 'path'
-import { GatsbyNode, NodePluginArgs, PluginOptions } from 'gatsby'
+import type { Node, GatsbyNode, NodePluginArgs, PluginOptions, Reporter } from 'gatsby'
 
 import { PLUGIN_NAME } from './constants'
 import { createFieldExts } from './utils'
+
+interface CustomPluginOptions extends PluginOptions {
+  dirs?: string | string[] | Record<string, string>
+  verbose?: boolean
+}
 
 type Resolve = (...args: any[]) => any
 type ResolveOptions = Record<'path', string>
@@ -11,9 +16,11 @@ interface CreateResolveArgs {
   rootDir: string
   dir?: string
   options?: ResolveOptions
+  reporter: Reporter
+  verbose: boolean
 }
 type CreateResolve = (args: CreateResolveArgs) => Resolve
-const createResolve: CreateResolve = ({ options, dir, rootDir }) => async (
+const createResolve: CreateResolve = ({ options, dir, rootDir, reporter, verbose }) => async (
   src: any,
   _: any,
   context: any,
@@ -48,8 +55,15 @@ const createResolve: CreateResolve = ({ options, dir, rootDir }) => async (
     path.posix.join(baseDir, partialPath)
   )
 
+  if (verbose) {
+    reporter.info(`[${PLUGIN_NAME}] querying for ${filePaths.length} path(s):`)
+    filePaths.forEach((filePath) => {
+      reporter.info(filePath)
+    })
+  }
+
   // Entries may be in a different order here
-  const fileNodes = await context.nodeModel.runQuery({
+  const fileNodes: Node[] = await context.nodeModel.runQuery({
     type: 'File',
     query: {
       filter: {
@@ -59,6 +73,14 @@ const createResolve: CreateResolve = ({ options, dir, rootDir }) => async (
       },
     },
   })
+
+  if (verbose) {
+    reporter.info(`[${PLUGIN_NAME}] found ${fileNodes.length} node(s).`)
+    fileNodes.forEach((node) => {
+      if (node && node.id) reporter.success(`node id: ${node.id}`)
+      else reporter.warn(`invalid node: ${JSON.stringify(node)}`)
+    })
+  }
 
   if (!fileNodes) {
     return null
@@ -80,9 +102,10 @@ const createResolve: CreateResolve = ({ options, dir, rootDir }) => async (
 
 export const createSchemaCustomization: GatsbyNode['createSchemaCustomization'] = async (
   { actions, store, reporter }: NodePluginArgs,
-  options: PluginOptions
+  options: CustomPluginOptions
 ) => {
-  const { dirs } = options
+  const { dirs, verbose: userVerbose = false } = options
+  const verbose = process.env.NODE_ENV !== 'production' && userVerbose
   const rootDir = store.getState().program.directory
 
   try {
@@ -100,7 +123,7 @@ export const createSchemaCustomization: GatsbyNode['createSchemaCustomization'] 
       actions.createFieldExtension({
         name,
         extend: (options: ResolveOptions) => ({
-          resolve: createResolve({ options, dir, rootDir }),
+          resolve: createResolve({ options, dir, rootDir, reporter, verbose }),
         }),
       })
     })
@@ -118,7 +141,7 @@ export const createSchemaCustomization: GatsbyNode['createSchemaCustomization'] 
         args: {
           path: 'String',
         },
-        resolve: createResolve({ options, rootDir }),
+        resolve: createResolve({ options, rootDir, reporter, verbose }),
       }),
     })
   } catch (err) {
