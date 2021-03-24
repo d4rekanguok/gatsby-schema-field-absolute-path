@@ -96,6 +96,29 @@ No problems, just modify your gql slightly:
   }
 ```
 
+### Enable Logging
+
+If you're stuck, please enable logging by setting `verbose` in plugin options:
+
+```js
+{
+  resolve: 'gatsby-schema-field-absolute-path',
+  options: {
+    verbose: true
+  }
+}
+```
+
+It'll log out file path queries & results.
+
+```
+info [gatsby-schema-field-absolute-path] querying for 1 path(s):
+info /var/opensource/v3-test/content/assets/test-img.png
+info [gatsby-schema-field-absolute-path] found 1 node(s).
+success node id: ed03879b-1bd0-56c2-8512-e43ba3243bf5
+```
+
+
 ### How It Works
 
 I published a post on how this work over here: [link](https://www.byderek.com/post/a-stackoverflow-question--a-use-case-for-gatsbys-field-extension)
@@ -117,12 +140,14 @@ npm i gatsby-schema-field-absolute-path
 
 module.exports = {
   plugins: [
-    // 1. No custom dirs
+    // 1. No custom dirs, highly recommended
     'gatsby-schema-field-absolute-path',
     // 2. With custom dirs:
     {
       resolve: 'gatsby-schema-field-absolute-path',
       options: {
+        // enable logging, helpful if you're stuck
+        verbose: true,
         // a. single directory
         dirs: 'content/assets'
 
